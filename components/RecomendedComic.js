@@ -3,26 +3,26 @@ import { View, Text, Image, StyleSheet, ActivityIndicator, TouchableOpacity } fr
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 
-const BASE_API_URL = 'https://komiku-api.fly.dev/api/comic/popular/page/1';
+const BASE_API_URL = 'https://komiku-api.fly.dev/api/comic/recommended/page/1';
 
-const PopularSection = () => {
-  const [popularComics, setPopularComics] = useState([]);
+const RecomendedtSection = () => {
+  const [newestComics, setNewestComics] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
 
   useEffect(() => {
-    const fetchPopularComics = async () => {
+    const fetchRecomendedComics = async () => {
       try {
         const response = await axios.get(BASE_API_URL);
-        setPopularComics(response.data.data);
+        setNewestComics(response.data.data);
       } catch (error) {
-        console.error('Error fetching popular comics:', error);
+        console.error('Error fetching recomended comics:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchPopularComics();
+    fetchRecomendedComics();
   }, []);
 
   const navigateToDetail = (endpoint) => {
@@ -47,9 +47,9 @@ const PopularSection = () => {
 
   return (
     <View style={styles.sectionContainer}>
-      <Text style={styles.sectionTitle}>Populer Komik</Text>
+      <Text style={styles.sectionTitle}>Rekomendasi komik</Text>
       <View style={styles.comicsContainer}>
-        {popularComics.slice(-3).map((comic) => renderComicItem(comic))}
+        {newestComics.slice(1,4).map((comic) => renderComicItem(comic))}
       </View>
     </View>
   );
@@ -95,4 +95,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PopularSection;
+export default RecomendedtSection;
