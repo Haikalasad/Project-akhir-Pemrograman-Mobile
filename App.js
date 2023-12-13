@@ -8,6 +8,7 @@ import Bookmark from './screens/bookmark';
 import ComicDetail from './screens/DetailKomik';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FontAwesome5 } from '@expo/vector-icons';
+import IsiChapter from './screens/IsiChapter';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -77,6 +78,7 @@ const App = () => {
           options={{ headerShown: false }}
         />
         <Stack.Screen name="DetailKomik" component={ComicDetail} />
+        <Stack.Screen name="IsiChapter" component={IsiChapter} />
       </Stack.Navigator>
     </NavigationContainer>
   );

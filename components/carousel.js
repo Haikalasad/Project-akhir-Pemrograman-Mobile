@@ -3,7 +3,7 @@ import { View, Text, Image, StyleSheet, ActivityIndicator, Dimensions, Touchable
 import Carousel from 'react-native-snap-carousel';
 import axios from 'axios';
 
-const BASE_API_URL = 'https://komiku-api.fly.dev/api/comic/popular/page/1';
+const BASE_API_URL = 'https://komiku-api.fly.dev/api/comic/popular/page/2';
 
 const PopularCarousel = () => {
     const [popularComics, setPopularComics] = useState([]);

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet, ActivityIndicator, ScrollView } from 'react-native';
+import { View, Text, Image, StyleSheet, ActivityIndicator, ScrollView, TouchableOpacity } from 'react-native';
 import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
 
 const BASE_API_URL = 'https://komiku-api.fly.dev/api/comic/info';
 
@@ -8,6 +9,8 @@ const ComicDetail = ({ route }) => {
   const [comicDetail, setComicDetail] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [chapters, setChapters] = useState([]);
+  const navigation = useNavigation();
 
   const { endpoint } = route.params;
 
@@ -18,6 +21,7 @@ const ComicDetail = ({ route }) => {
         
         if (response.data.success && response.data.data) {
           setComicDetail(response.data.data);
+
         } else {
           setError('Comic data not found');
         }
@@ -31,6 +35,10 @@ const ComicDetail = ({ route }) => {
 
     fetchComicDetail();
   }, [endpoint]);
+
+  const navigateToChapterContent = (chapterEndpoint) => {
+    navigation.navigate('IsiChapter', { chapterEndpoint });
+  };
 
   if (loading) {
     return (
@@ -62,16 +70,24 @@ const ComicDetail = ({ route }) => {
 
       <View style={styles.chapterContainer}>
   <Text style={styles.chapterHeading}>Chapter List:</Text>
+  
   <ScrollView
     style={styles.chapterBox}
     showsVerticalScrollIndicator={true}
-    nestedScrollEnabled={true} // Enable nested scrolling
+    nestedScrollEnabled={true} 
   >
+    
     {comicDetail.chapter_list && comicDetail.chapter_list.length > 0 && (
       comicDetail.chapter_list.map((chapter, index) => (
+        <TouchableOpacity
+        key={index}
+        onPress={() => navigateToChapterContent(chapter.endpoint)}
+        >
+
         <View key={index} style={styles.chapterItem}>
           <Text style={styles.chapterText}>{chapter.name}</Text>
         </View>
+        </TouchableOpacity>
       ))
     )}
   </ScrollView>
@@ -122,7 +138,7 @@ const styles = StyleSheet.create({
   chapterBox: {
     height: 250,
     borderRadius: 15,
-    overflow: 'hidden', // Ensure content is not rendered outside the box
+    overflow: 'hidden', 
   },
   chapterItem: {
     marginVertical: 8,
