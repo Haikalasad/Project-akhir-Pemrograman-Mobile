@@ -9,6 +9,11 @@ import ComicDetail from './screens/DetailKomik';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FontAwesome5 } from '@expo/vector-icons';
 import IsiChapter from './screens/IsiChapter';
+import Signup from './screens/signup';
+import { store } from './redux/store';
+import { Provider } from 'react-redux';
+import { userLogin } from './redux/profileSlice';
+import IsiChapter from './screens/IsiChapter';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -68,6 +73,7 @@ const BottomNavigator= ()=>{
 };
 const App = () => {
   return (
+    <Provider store={store}>
     <NavigationContainer>
   
       <Stack.Navigator>
@@ -79,8 +85,12 @@ const App = () => {
         />
         <Stack.Screen name="DetailKomik" component={ComicDetail} />
         <Stack.Screen name="IsiChapter" component={IsiChapter} />
+        <Stack.Screen name="Signup" component={Signup} />
+        <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="IsiChapter" component={IsiChapter} />
       </Stack.Navigator>
     </NavigationContainer>
+    </Provider>
   );
 };
 
