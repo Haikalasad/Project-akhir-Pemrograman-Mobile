@@ -1,7 +1,11 @@
+// App.js
+// App.js
 import React from 'react';
 import { Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { Provider } from 'react-redux';
+import { store } from './redux/store';
 import Home from './screens/home';
 import Explore from './screens/Explore';
 import Bookmark from './screens/bookmark';
@@ -10,16 +14,13 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { FontAwesome5 } from '@expo/vector-icons';
 import IsiChapter from './screens/IsiChapter';
 import Signup from './screens/signup';
-import { store } from './redux/store';
-import { Provider } from 'react-redux';
-import { userLogin } from './redux/profileSlice';
-import IsiChapter from './screens/IsiChapter';
+import Login from './screens/login'; // Import Login component
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
-const BottomNavigator= ()=>{
-  return(
+const BottomNavigator = () => {
+  return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
@@ -32,11 +33,7 @@ const BottomNavigator= ()=>{
             iconName = 'bookmark';
           }
           return (
-          <FontAwesome5
-          name={iconName}
-          size={size}
-          color={focused ? 'red' : color}
-          />
+            <FontAwesome5 name={iconName} size={size} color={focused ? 'red' : color} />
           );
         },
         tabBarIconStyle: { marginTop: 10 },
@@ -56,40 +53,47 @@ const BottomNavigator= ()=>{
       <Tab.Screen
         name="Home"
         component={Home}
-        options={{ unmountOnBlur: true,headerShown : false }}
+        options={{ unmountOnBlur: true, headerShown: false }}
       />
       <Tab.Screen
         name="Explore"
         component={Explore}
-        options={{ unmountOnBlur: true,headerShown : false}}
+        options={{ unmountOnBlur: true, headerShown: false }}
       />
       <Tab.Screen
         name="Bookmark"
         component={Bookmark}
-        options={{unmountOnBlur: true,headerShown : false }}
+        options={{ unmountOnBlur: true, headerShown: false }}
       />
     </Tab.Navigator>
   );
 };
+
 const App = () => {
   return (
     <Provider store={store}>
-    <NavigationContainer>
-  
-      <Stack.Navigator>
-        
-         <Stack.Screen
-          name="BottomNavigator"
-          component={BottomNavigator}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen name="DetailKomik" component={ComicDetail} />
-        <Stack.Screen name="IsiChapter" component={IsiChapter} />
-        <Stack.Screen name="Signup" component={Signup} />
-        <Stack.Screen name="Login" component={Login} />
-        <Stack.Screen name="IsiChapter" component={IsiChapter} />
-      </Stack.Navigator>
-    </NavigationContainer>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Signup">
+          <Stack.Screen
+            name="Signup"
+            component={Signup}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Login"
+            component={Login}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="BottomNavigator"
+            component={BottomNavigator}
+            options={{ headerShown: false }}
+          />
+     
+          <Stack.Screen name="DetailKomik" component={ComicDetail} />
+          <Stack.Screen name="IsiChapter" component={IsiChapter} />
+        </Stack.Navigator>
+      </NavigationContainer>
     </Provider>
   );
 };

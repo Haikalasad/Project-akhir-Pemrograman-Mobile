@@ -69,7 +69,7 @@ const styles = StyleSheet.create({
   },
   chapterImage: {
     width: '100%',
-    height: 300, // Sesuaikan tinggi gambar sesuai kebutuhan
+    height: 300, 
     marginBottom: 10,
   },
 });

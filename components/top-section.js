@@ -1,13 +1,15 @@
 import React from 'react';
 import { View, Image, StyleSheet, Dimensions, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-// import { useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
 const windowWidth = Dimensions.get('window').width;
 
 
 const Topsection = () => {
-  // const { user } = useSelector((state) => state.profile);
+  const { user } = useSelector((state) => state.profile);
+  console.log('User state:', user);
+
   return (
     <View style={styles.container}>
       <View style={styles.profile}>
@@ -18,14 +20,18 @@ const Topsection = () => {
           style={styles.image}
         />
         <View style={styles.textContainer}>
-          <Text style={{ fontSize: 16, marginRight: 14,color: "gray"}}>Selamat datang</Text>
+          <Text style={{ fontSize: 16, marginRight: 14, color: 'gray' }}>
+            Selamat datang
+          </Text>
           <Text style={{ fontSize: 18, fontWeight: 'bold', marginRight: 14 }}>
-            Mira Suxi 
-            {/* {user?.username} */}
+          {user && user.username ? user.username : usename}
           </Text>
         </View>
       </View>
-      <TouchableOpacity style={styles.menu} onPress={() => console.log('Hamburger pressed')}>
+      <TouchableOpacity
+        style={styles.menu}
+        onPress={() => console.log('Hamburger pressed')}
+      >
         <Ionicons name="menu-outline" size={30} color="black" />
       </TouchableOpacity>
     </View>
