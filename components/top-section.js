@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 const windowWidth = Dimensions.get('window').width;
 
 
+
 const Topsection = () => {
   const { user } = useSelector((state) => state.profile);
   console.log('User state:', user);
