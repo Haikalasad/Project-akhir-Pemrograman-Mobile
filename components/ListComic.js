@@ -1,20 +1,33 @@
+// ListComic.js
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, Image, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
+import SearchExplore from '../components/search-explore';
+import CategoryExplore from '../components/category-explore';
 
 const BASE_API_URL = 'https://komiku-api.fly.dev/api/comic/list';
+const BASE_API_SEARCH = 'https://komiku-api.fly.dev/api/comic'
 
 const ListComic = () => {
   const [comicList, setComicList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchText, setSearchText] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState(null);
   const navigation = useNavigation();
 
   useEffect(() => {
     const fetchComicList = async () => {
       try {
-        const response = await axios.get(BASE_API_URL);
+        let apiUrl = BASE_API_URL;
+
+        // Include category filter if selected
+        if (selectedCategory) {
+          apiUrl += `?filter=${selectedCategory.toLowerCase()}`;
+        }
+
+        const response = await axios.get(apiUrl);
         setComicList(response.data.data);
       } catch (error) {
         console.error('Error fetching comic list:', error);
@@ -25,7 +38,19 @@ const ListComic = () => {
     };
 
     fetchComicList();
-  }, []);
+  }, [selectedCategory]); // Trigger the fetch when the selected category changes
+
+  const handleSearch = async (query) => {
+    try {
+      const response = await axios.get(`${BASE_API_SEARCH}/search/${encodeURIComponent(query)}`);
+      setComicList(response.data.data);
+    } catch (error) {
+      console.error('Error fetching search results:', error);
+      setError('Error fetching data');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const renderComicItem = ({ item }) => (
     <TouchableOpacity style={styles.comicItem} onPress={() => showComicDetail(item.endpoint)}>
@@ -35,8 +60,15 @@ const ListComic = () => {
   );
 
   const showComicDetail = (endpoint) => {
-    // Navigasi ke layar detail komik dengan parameter endpoint
     navigation.navigate('DetailKomik', { endpoint });
+  };
+
+  const handleSearchChange = (query) => {
+    setSearchText(query);
+  };
+
+  const handleSelectCategory = (category) => {
+    setSelectedCategory(category);
   };
 
   if (loading) {
@@ -55,21 +87,18 @@ const ListComic = () => {
     );
   }
 
-  if (comicList.length === 0) {
-    return (
-      <View style={styles.container}>
-        <Text>No comics available</Text>
-      </View>
-    );
-  }
-
   return (
     <View style={styles.container}>
-      <FlatList
-        data={comicList}
-        keyExtractor={(item) => item.title}
-        renderItem={renderComicItem}
+      <SearchExplore onSearch={handleSearch} onChange={handleSearchChange} />
+      <CategoryExplore
+        categories={['Manga', 'Manhwa', 'Manhua']}
+        selectedCategory={selectedCategory}
+        onSelectCategory={handleSelectCategory}
       />
+      {comicList.length === 0 && <Text>No matching comics found</Text>}
+      {comicList.length > 0 && (
+        <FlatList data={comicList} keyExtractor={(item) => item.title} renderItem={renderComicItem} />
+      )}
     </View>
   );
 };

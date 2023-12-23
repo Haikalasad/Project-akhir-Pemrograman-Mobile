@@ -1,7 +1,14 @@
-import {Text } from 'react-native';
-const Explore = () =>{
-    return(
-        <Text>Ini halaman eksplor</Text>
-    )
-}
+// ComicScreen.js
+import React from 'react';
+import { View, Text, ScrollView } from 'react-native';
+import ListComic from '../components/ListComic';
+
+const Explore = () => {
+  return (
+    <ScrollView>
+        <ListComic />
+    </ScrollView>
+  );
+};
+
 export default Explore;
