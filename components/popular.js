@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
+import { Icon } from 'react-native-elements';
 
 const BASE_API_URL = 'https://komiku-api.fly.dev/api/comic/popular/page/1';
 
@@ -30,10 +31,20 @@ const PopularSection = () => {
     navigation.navigate('DetailKomik', { endpoint });
   };
 
+  const saveComic = (endpoint) => {
+    // Simpan Komik
+    navigation.navigate('SaveKomik', { endpoint });
+ };
+
   const renderComicItem = (comic) => (
     <TouchableOpacity key={comic.title} style={styles.comicItem} onPress={() => navigateToDetail(comic.endpoint)}>
       <Image source={{ uri: comic.image }} style={styles.comicImage} />
-      <Text style={styles.comicTitle}>{comic.title}</Text>
+      <View style={styles.comicInfo}>
+        <Text style={styles.comicTitle}>{comic.title}</Text>
+        <TouchableOpacity style={styles.saveButton} onPress={() => saveComic(comic.endpoint)}>
+          <Icon name='star' type='font-awesome' color='gray' />
+        </TouchableOpacity>
+      </View>
     </TouchableOpacity>
   );
 
@@ -93,6 +104,10 @@ const styles = StyleSheet.create({
     color: '#333', 
     textAlign: 'left', 
   },
+  saveButton: {
+    padding: 8,
+    marginTop: 6,
+ },
 });
 
 export default PopularSection;
