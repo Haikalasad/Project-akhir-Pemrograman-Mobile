@@ -6,7 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import Topsection from '../components/top-section';
 import PopularCarousel from '../components/carousel';
 import PopularSection from '../components/popular';
-import RecomendedtSection from '../components/RecomendedComic';
+import RecomendedSection from '../components/RecomendedComic';
 
 const Home = () => {
   const navigation = useNavigation();
@@ -31,7 +31,7 @@ const Home = () => {
     <ScrollView>
       <Topsection />
       <PopularCarousel />
-      <RecomendedtSection />
+      <RecomendedSection/>
       <PopularSection />
     </ScrollView>
   );

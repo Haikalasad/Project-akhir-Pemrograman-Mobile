@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
-import { Icon } from 'react-native-elements';
+import { FontAwesome5 } from '@expo/vector-icons';
+import { useDispatch, useSelector } from 'react-redux';
+import { addBookmark, removeBookmark, selectBookmarks } from '../redux/bookmarkSlice';
 
 const BASE_API_URL = 'https://komiku-api.fly.dev/api/comic/recommended/page/1';
 
@@ -10,43 +12,60 @@ const RecomendedSection = () => {
   const [newestComics, setNewestComics] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const bookmarks = useSelector(selectBookmarks);
 
   useEffect(() => {
-    const fetchRecomendedComics = async () => {
+    const fetchRecommendedComics = async () => {
       try {
         const response = await axios.get(BASE_API_URL);
         setNewestComics(response.data.data);
       } catch (error) {
-        console.error('Error fetching recomended comics:', error);
+        console.error('Error fetching recommended comics:', error);
+        // Handle the error and potentially display a message to the user
       } finally {
         setLoading(false);
       }
     };
 
-    fetchRecomendedComics();
+    fetchRecommendedComics();
   }, []);
 
   const navigateToDetail = (endpoint) => {
-    // Gunakan fungsi navigate untuk berpindah ke halaman DetailKomik dengan mengirim parameter endpoint
     navigation.navigate('DetailKomik', { endpoint });
   };
 
-  const saveComic = (endpoint) => {
-    // Simpan Komik
-    navigation.navigate('SaveKomik', { endpoint });
- };
+  const saveComic = (comic) => {
+    const isBookmarked = bookmarks.some((bookmark) => bookmark.title === comic.title);
 
-  const renderComicItem = (comic) => (
-    <TouchableOpacity key={comic.title} style={styles.comicItem} onPress={() => navigateToDetail(comic.endpoint)}>
-      <Image source={{ uri: comic.image }} style={styles.comicImage} />
-      <View style={styles.comicInfo}>
-        <Text style={styles.comicTitle}>{comic.title}</Text>
-        <TouchableOpacity style={styles.saveButton} onPress={() => saveComic(comic.endpoint)}>
-          <Icon name='star' type='font-awesome' color='gray' />
-        </TouchableOpacity>
-      </View>
-    </TouchableOpacity>
-  );
+    if (isBookmarked) {
+      // Remove the bookmark using the comic's title as the identifier
+      dispatch(removeBookmark({ title: comic.title }));
+    } else {
+      // Add the bookmark using the entire comic object
+      dispatch(addBookmark(comic));
+    }
+  };
+
+  const renderComicItem = (comic) => {
+    const isBookmarked = bookmarks.some((bookmark) => bookmark.title === comic.title);
+
+    return (
+      <TouchableOpacity key={comic.title} style={styles.comicItem} onPress={() => navigateToDetail(comic.endpoint)}>
+        <Image source={{ uri: comic.image }} style={styles.comicImage} />
+        <View style={styles.overlay}>
+          <TouchableOpacity style={styles.saveButton} onPress={() => saveComic(comic)}>
+            <View style={[styles.starContainer, { backgroundColor: isBookmarked ? 'red' : 'white' }]}>
+              <FontAwesome5 name="bookmark" size={24} color={isBookmarked ? 'white' : 'red'} />
+            </View>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.comicInfo}>
+          <Text style={styles.comicTitle}>{comic.title}</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   if (loading) {
     return (
@@ -60,11 +79,12 @@ const RecomendedSection = () => {
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>Rekomendasi komik</Text>
       <View style={styles.comicsContainer}>
-        {newestComics.slice(1,4).map((comic) => renderComicItem(comic))}
+        {newestComics.slice(1, 4).map((comic) => renderComicItem(comic))}
       </View>
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -90,24 +110,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginHorizontal: 8,
     marginBottom: 20,
+    position: 'relative', // Ensure the positioning context for absolute positioning
   },
   comicImage: {
     width: '100%',
     height: 150,
     borderRadius: 10,
-    gap : 10
   },
-  comicTitle: {
-    marginTop: 8,
-    fontSize: 14, 
-    fontWeight: 'bold',
-    color: '#333', 
-    textAlign: 'left', 
+   overlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'flex-end',
+    marginTop: -10,
+    marginRight: -9,
   },
   saveButton: {
-    padding: 8,
-    marginTop: 6,
- },
+    padding: 9,
+     // Adjust the margin to ensure the icon is fully visible
+  },
+  starContainer: {
+
+    borderRadius: 6, // Adjust the border radius to achieve the circular shape
+    borderWidth:8, // Set the border width
+    borderColor: 'white', // Set the border color to red
+    backgroundColor : 'white'
+  },
 });
 
 export default RecomendedSection;

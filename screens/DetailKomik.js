@@ -35,11 +35,9 @@ const ComicDetail = ({ route }) => {
 
     fetchComicDetail();
   }, [endpoint]);
-
-  const navigateToChapterContent = (chapterEndpoint) => {
-    navigation.navigate('IsiChapter', { chapterEndpoint });
+  const navigateToChapterContent = (chapterEndpoint, chapterList) => {
+    navigation.navigate('IsiChapter', { chapterEndpoint, chapterList });
   };
-
   if (loading) {
     return (
       <View style={styles.container}>
@@ -65,33 +63,32 @@ const ComicDetail = ({ route }) => {
         <Text style={styles.infoText}>Author: {comicDetail.author}</Text>
         <Text style={styles.infoText}>Status: {comicDetail.status}</Text>
         <Text style={styles.infoText}>Rating: {comicDetail.rating}</Text>
-        <Text style={styles.infoText}>Genres: {comicDetail.genre.join(', ')}</Text>
+        <Text style={styles.infoText}>Genres: {comicDetail.genre?.join(', ') || 'N/A'}</Text>
       </View>
 
       <View style={styles.chapterContainer}>
-  <Text style={styles.chapterHeading}>Chapter List:</Text>
-  
-  <ScrollView
-    style={styles.chapterBox}
-    showsVerticalScrollIndicator={true}
-    nestedScrollEnabled={true} 
-  >
-    
-    {comicDetail.chapter_list && comicDetail.chapter_list.length > 0 && (
-      comicDetail.chapter_list.map((chapter, index) => (
-        <TouchableOpacity
-        key={index}
-        onPress={() => navigateToChapterContent(chapter.endpoint)}
+        <Text style={styles.chapterHeading}>Chapter List:</Text>
+        
+        <ScrollView
+          style={styles.chapterBox}
+          showsVerticalScrollIndicator={true}
+          nestedScrollEnabled={true} 
         >
-
-        <View key={index} style={styles.chapterItem}>
-          <Text style={styles.chapterText}>{chapter.name}</Text>
-        </View>
-        </TouchableOpacity>
-      ))
-    )}
-  </ScrollView>
-</View>
+          
+          {comicDetail.chapter_list && comicDetail.chapter_list.length > 0 && (
+            comicDetail.chapter_list.map((chapter, index) => (
+              <TouchableOpacity
+                key={index}
+                onPress={() => navigateToChapterContent(chapter.endpoint)}
+              >
+                <View key={index} style={styles.chapterItem}>
+                  <Text style={styles.chapterText}>{chapter.name}</Text>
+                </View>
+              </TouchableOpacity>
+            ))
+          )}
+        </ScrollView>
+      </View>
     </ScrollView>
   );
 };

@@ -1,66 +1,70 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, Button } from 'react-native';
-import { useSelector, useDispatch } from 'react-redux';
-import ListComic from '../components/ListComic';
-import PopularSection from '../components/popular';
-import RecomendedSection from '../components/RecomendedComic';
-import { fetchBookmark, storeBookmark, deleteBookmark } from '../redux/bookmarkSlice';
+// BookmarkScreen.js
+import React from 'react';
+import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { useSelector } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
+import { selectBookmarks } from '../redux/bookmarkSlice';
 
-const Bookmark = () => { 
-    const dispatch = useDispatch(); 
-    const [isLoading, setIsLoading] = useState(true); 
-    const bookmarkList = useSelector((state) => state.bookmark.data);
+const BookmarkScreen = () => {
+  const navigation = useNavigation();
+  const bookmarks = useSelector(selectBookmarks);
 
-    useEffect(() => {
-        setIsLoading(true);
-        dispatch(fetchBookmark({ username: ' ', isComplete: "0" }))
-            .then(() => setIsLoading(false))
-            .catch(() => setIsLoading(false));
-    }, [dispatch]);
-    
-    const handleBookmark = async (id, title, cover, author, genre, rating, isComplete) => {
-        setIsLoading(true);
-        const payload = {
-            id,
-            title,
-            cover,
-            author,
-            genre,
-            rating,
-            isComplete: isComplete ? "0" : "1"
-        };
-        await dispatch(storeBookmark(payload));
-        setIsLoading(false);
-    };
-    
-    const handleDeleteBookmark = async (id) => {
-        setIsLoading(true);
-        await dispatch(deleteBookmark({ id, username: ' ', completed: true }));
-        setIsLoading(false);
-    };
-    
-    return (
-        <View>
-            {isLoading ? (
-                <Text>Loading...</Text>
-            ) : (
-                <View>
-                    {bookmarkList.map((bookmark) => (
-                        <View key={bookmark.id}>
-                            <Text>{bookmark.title}</Text>
-                            <Text>{bookmark.author}</Text>
-                            <Text>{bookmark.genre}</Text>
-                            <Text>{bookmark.rating}</Text>
-                            {/* <Button onClick={() => handleBookmark(bookmark.id, bookmark.title, bookmark.cover, bookmark.author, bookmark.genre, bookmark.rating, bookmark.isComplete)}>
-                                <Text>{bookmark.isComplete ? 'Unmark as Favorite' : 'Mark as Favorite'}</Text>
-                            </Button>
-                            <Button onClick={() => handleDeleteBookmark(bookmark.id)}>Delete</Button> */}
-                        </View>
-                    ))}
-                </View>
-            )}
-        </View>
-    );
+  const navigateToDetail = (endpoint) => {
+    navigation.navigate('DetailKomik', { endpoint });
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.header}>Bookmarks</Text>
+      {bookmarks.length === 0 ? (
+        <Text style={styles.emptyText}>No bookmarks yet.</Text>
+      ) : (
+        <FlatList
+          data={bookmarks}
+          keyExtractor={(item) => (item.id ? item.id.toString() : item.title)}
+          renderItem={({ item }) => (
+            <TouchableOpacity onPress={() => navigateToDetail(item.endpoint)}>
+              <View style={styles.bookmarkItem}>
+                <Image source={{ uri: item.image }} style={styles.comicImage} />
+                <Text>{item.title}</Text>
+              </View>
+            </TouchableOpacity>
+          )}
+        />
+      )}
+    </View>
+  );
 };
 
-export default Bookmark;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  header: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    marginTop: 60,
+  },
+  emptyText: {
+    fontSize: 18,
+    color: 'gray',
+  },
+  bookmarkItem: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  comicImage: {
+    width: 50, // Adjust the width as needed
+    height: 50, // Adjust the height as needed
+    borderRadius: 5, // Adjust the border radius as needed
+    marginRight: 10, // Adjust the margin as needed
+  },
+});
+
+export default BookmarkScreen;
