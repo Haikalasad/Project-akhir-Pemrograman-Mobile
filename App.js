@@ -29,7 +29,8 @@ const BottomNavigator = () => {
             iconName = 'home';
           } else if (route.name === 'Explore') {
             iconName = 'search';
-          } else if (route.name === 'Bookmark') {
+          } 
+          else if (route.name === 'Bookmark') {
             iconName = 'bookmark';
           }
           return (
@@ -73,7 +74,7 @@ const App = () => {
   return (
     <Provider store={store}>
       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Signup">
+        <Stack.Navigator initialRouteName="Login">
           <Stack.Screen
             name="Signup"
             component={Signup}

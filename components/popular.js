@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
-import { Icon } from 'react-native-elements';
+import { FontAwesome5 } from '@expo/vector-icons';
+import { useDispatch, useSelector } from 'react-redux';
+import { addBookmark, removeBookmark, selectBookmarks } from '../redux/bookmarkSlice';
 
 const BASE_API_URL = 'https://komiku-api.fly.dev/api/comic/popular/page/1';
 
@@ -10,6 +12,8 @@ const PopularSection = () => {
   const [popularComics, setPopularComics] = useState([]);
   const [loading, setLoading] = useState(true);
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const bookmarks = useSelector(selectBookmarks);
 
   useEffect(() => {
     const fetchPopularComics = async () => {
@@ -27,26 +31,38 @@ const PopularSection = () => {
   }, []);
 
   const navigateToDetail = (endpoint) => {
-    // Gunakan fungsi navigate untuk berpindah ke halaman DetailKomik dengan mengirim parameter endpoint
     navigation.navigate('DetailKomik', { endpoint });
   };
 
-  const saveComic = (endpoint) => {
-    // Simpan Komik
-    navigation.navigate('SaveKomik', { endpoint });
- };
+  const saveComic = (comic) => {
+    const isBookmarked = bookmarks.some((bookmark) => bookmark.title === comic.title);
 
-  const renderComicItem = (comic) => (
-    <TouchableOpacity key={comic.title} style={styles.comicItem} onPress={() => navigateToDetail(comic.endpoint)}>
-      <Image source={{ uri: comic.image }} style={styles.comicImage} />
-      <View style={styles.comicInfo}>
-        <Text style={styles.comicTitle}>{comic.title}</Text>
-        <TouchableOpacity style={styles.saveButton} onPress={() => saveComic(comic.endpoint)}>
-          <Icon name='star' type='font-awesome' color='gray' />
-        </TouchableOpacity>
-      </View>
-    </TouchableOpacity>
-  );
+    if (isBookmarked) {
+      dispatch(removeBookmark({ title: comic.title }));
+    } else {
+      dispatch(addBookmark(comic));
+    }
+  };
+
+  const renderComicItem = (comic) => {
+    const isBookmarked = bookmarks.some((bookmark) => bookmark.title === comic.title);
+
+    return (
+      <TouchableOpacity key={comic.title} style={styles.comicItem} onPress={() => navigateToDetail(comic.endpoint)}>
+        <Image source={{ uri: comic.image }} style={styles.comicImage} />
+        <View style={styles.overlay}>
+          <TouchableOpacity style={styles.saveButton} onPress={() => saveComic(comic)}>
+            <View style={[styles.starContainer, { backgroundColor: isBookmarked ? 'red' : 'white' }]}>
+              <FontAwesome5 name="bookmark" size={24} color={isBookmarked ? 'white' : 'red'} />
+            </View>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.comicInfo}>
+          <Text style={styles.comicTitle}>{comic.title}</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   if (loading) {
     return (
@@ -60,11 +76,12 @@ const PopularSection = () => {
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>Populer Komik</Text>
       <View style={styles.comicsContainer}>
-        {popularComics.slice(-3).map((comic) => renderComicItem(comic))}
+        {popularComics.slice(5,8).map((comic) => renderComicItem(comic))}
       </View>
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -104,10 +121,22 @@ const styles = StyleSheet.create({
     color: '#333', 
     textAlign: 'left', 
   },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'flex-end',
+    marginTop: -10,
+    marginRight: -9,
+  },
   saveButton: {
-    padding: 8,
-    marginTop: 6,
- },
+    padding: 9,
+  },
+  starContainer: {
+
+    borderRadius: 6, 
+    borderWidth:8, 
+    borderColor: 'white',
+    backgroundColor : 'white'
+  },
 });
 
 export default PopularSection;
