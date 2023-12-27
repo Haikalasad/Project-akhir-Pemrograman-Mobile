@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Image, StyleSheet, ActivityIndicator, ScrollView, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
+import { addBookmark, removeBookmark, selectBookmarks } from '../redux/bookmarkSlice';
 
 const BASE_API_URL = 'https://komiku-api.fly.dev/api/comic/info';
 
@@ -11,6 +13,8 @@ const ComicDetail = ({ route }) => {
   const [error, setError] = useState(null);
   const [chapters, setChapters] = useState([]);
   const navigation = useNavigation();
+  const dispatch = useDispatch();
+  const bookmarks = useSelector(selectBookmarks);
 
   const { endpoint } = route.params;
 
@@ -21,7 +25,6 @@ const ComicDetail = ({ route }) => {
         
         if (response.data.success && response.data.data) {
           setComicDetail(response.data.data);
-
         } else {
           setError('Comic data not found');
         }
@@ -35,9 +38,25 @@ const ComicDetail = ({ route }) => {
 
     fetchComicDetail();
   }, [endpoint]);
-  const navigateToChapterContent = (chapterEndpoint, chapterList) => {
-    navigation.navigate('IsiChapter', { chapterEndpoint, chapterList });
+
+  const navigateToChapterContent = (chapterEndpoint) => {
+    navigation.navigate('IsiChapter', { chapterEndpoint, chapterList: comicDetail.chapter_list });
+  }
+
+  const saveComic = () => {
+    const isBookmarked = bookmarks.some((bookmark) => bookmark.title === comicDetail.title);
+
+    if (isBookmarked) {
+      dispatch(removeBookmark({ title: comicDetail.title }));
+    } else {
+      dispatch(addBookmark({
+        title: comicDetail.title,
+        image: comicDetail.thumbnail,
+        endpoint: endpoint,
+      }));
+    }
   };
+
   if (loading) {
     return (
       <View style={styles.container}>
@@ -64,6 +83,14 @@ const ComicDetail = ({ route }) => {
         <Text style={styles.infoText}>Status: {comicDetail.status}</Text>
         <Text style={styles.infoText}>Rating: {comicDetail.rating}</Text>
         <Text style={styles.infoText}>Genres: {comicDetail.genre?.join(', ') || 'N/A'}</Text>
+
+        <TouchableOpacity onPress={saveComic} style={styles.bookmarkButton}>
+          <Text style={styles.buttonText}>
+            {bookmarks.some((bookmark) => bookmark.title === comicDetail.title)
+              ? 'Remove Bookmark'
+              : 'Add Bookmark'}
+          </Text>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.chapterContainer}>
@@ -145,6 +172,16 @@ const styles = StyleSheet.create({
   },
   chapterText: {
     fontSize: 16,
+  },
+  bookmarkButton: {
+    backgroundColor: '#3498db',
+    padding: 10,
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  buttonText: {
+    color: '#ffffff',
+    textAlign: 'center',
   },
 });
 
