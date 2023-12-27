@@ -8,9 +8,10 @@ const IsiChapter = ({ route }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [chapterList, setChapterList] = useState([]);
+  const [chapterTitle, setChapterTitle] = useState(''); // Tambahkan state untuk menyimpan judul chapter
   const navigation = useNavigation();
 
-  const { chapterEndpoint } = route.params;  // Remove `initialChapterList`
+  const { chapterEndpoint, chapterList: initialChapterList } = route.params;
 
   useEffect(() => {
     const fetchChapterImages = async () => {
@@ -21,6 +22,7 @@ const IsiChapter = ({ route }) => {
           const fetchedChapterList = response.data.data.chapter_list || [];
           setChapterList(fetchedChapterList);
           setChapterImages(response.data.data.image);
+          setChapterTitle(response.data.data.title || ''); // Simpan judul chapter
         } else {
           setError('Chapter content not found');
         }
@@ -36,17 +38,26 @@ const IsiChapter = ({ route }) => {
   }, [chapterEndpoint]);
 
   const goToNextChapter = () => {
-    const currentChapterIndex = chapterList.findIndex(
-      chapter => chapter && chapter.endpoint === chapterEndpoint
+    const currentChapterIndex = initialChapterList.findIndex(
+      (chapter) => chapter && chapter.endpoint === chapterEndpoint
     );
 
-    if (currentChapterIndex !== -1 && currentChapterIndex < chapterList.length - 1) {
-      const nextChapter = chapterList[currentChapterIndex + 1];
-      navigation.navigate('IsiChapter', { chapterEndpoint: nextChapter.endpoint });
+    if (currentChapterIndex !== -1 && currentChapterIndex < initialChapterList.length - 1) {
+      const nextChapter = initialChapterList[currentChapterIndex - 1];
+      navigation.navigate('IsiChapter', { chapterEndpoint: nextChapter.endpoint, chapterList: initialChapterList });
     }
   };
 
-  
+  const goToPrevChapter = () => {
+    const currentChapterIndex = initialChapterList.findIndex(
+      (chapter) => chapter && chapter.endpoint === chapterEndpoint
+    );
+
+    if (currentChapterIndex !== -1 && currentChapterIndex < initialChapterList.length + 1) {
+      const nextChapter = initialChapterList[currentChapterIndex + 1];
+      navigation.navigate('IsiChapter', { chapterEndpoint: nextChapter.endpoint, chapterList: initialChapterList });
+    }
+  };
 
   if (loading) {
     return (
@@ -67,13 +78,21 @@ const IsiChapter = ({ route }) => {
   return (
     <ScrollView style={styles.scrollView}>
       <View style={styles.container}>
+        {chapterTitle.length > 0 && (
+          <Text style={styles.title}>{chapterTitle}</Text>
+        )}
         {chapterImages.map((image, index) => (
           <Image key={index} source={{ uri: image }} style={styles.chapterImage} />
         ))}
-
-        <TouchableOpacity onPress={goToNextChapter} style={styles.nextButton}>
-          <Text style={styles.buttonText}>Next Chapter</Text>
-        </TouchableOpacity>
+    
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity onPress={goToPrevChapter} style={styles.button}>
+            <Text style={styles.buttonText}>Prev Chapter</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={goToNextChapter} style={styles.button}>
+            <Text style={styles.buttonText}>Next Chapter</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </ScrollView>
   );
@@ -94,11 +113,22 @@ const styles = StyleSheet.create({
     height: 300,
     marginBottom: 10,
   },
-  nextButton: {
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    marginTop: 10,
+  },
+  button: {
     backgroundColor: '#3498db',
     padding: 10,
     borderRadius: 5,
-    marginTop: 10,
+    width: '48%', // Gunakan lebar kurang dari 50% agar ada ruang di antara tombol
   },
   buttonText: {
     color: '#ffffff',

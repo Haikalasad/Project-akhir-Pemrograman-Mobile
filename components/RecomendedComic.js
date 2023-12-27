@@ -79,7 +79,7 @@ const RecomendedSection = () => {
     <View style={styles.sectionContainer}>
       <Text style={styles.sectionTitle}>Rekomendasi komik</Text>
       <View style={styles.comicsContainer}>
-        {newestComics.slice(1, 4).map((comic) => renderComicItem(comic))}
+        {newestComics.slice(3, 6).map((comic) => renderComicItem(comic))}
       </View>
     </View>
   );
@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 20,
     color : "red",
     marginLeft : 10
   },
@@ -111,6 +111,13 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
     marginBottom: 20,
     position: 'relative', // Ensure the positioning context for absolute positioning
+  },
+  comicTitle: {
+    marginTop: 8,
+    fontSize: 14, 
+    fontWeight: 'bold',
+    color: '#333', 
+    textAlign: 'left', 
   },
   comicImage: {
     width: '100%',
